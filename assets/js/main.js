@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   MAXX TOBACCO & VAPOR — home page demo
+   MAXX TOBACCO & VAPOR / home page demo
    No dependencies. Everything degrades gracefully without JS.
    ═══════════════════════════════════════════════════════════ */
 (function () {
@@ -34,7 +34,7 @@
     try { return window.localStorage.getItem(key); } catch (e) { return null; }
   }
   function storageSet(key, val) {
-    try { window.localStorage.setItem(key, val); } catch (e) { /* private mode — skip */ }
+    try { window.localStorage.setItem(key, val); } catch (e) { /* private mode, skip */ }
   }
 
   if (gate && storageGet('maxx_age_ok') !== 'yes') {
@@ -123,7 +123,7 @@
   --------------------------------------------------------- */
   $$('.cat').forEach(function (card) {
     card.addEventListener('click', function (e) {
-      if (card.getAttribute('href') !== '#') return; // real link — let it through
+      if (card.getAttribute('href') !== '#') return; // real link, let it through
       e.preventDefault();
       var name = $('.cat__name', card);
       toast('“' + (name ? name.textContent : 'This category') + '” page is coming soon.');
@@ -175,7 +175,7 @@
     setTimeout(function () {
       locateBtn.classList.remove('is-busy');
       if (label) label.textContent = original;
-      toast('Distance sorting is coming soon — for now, filter by city or street below.');
+      toast('Distance sorting is coming soon. For now, filter by city or street below.');
       if (filterInput) filterInput.focus();
     }, 900);
   });
@@ -202,7 +202,7 @@
       if (ok) ok.hidden = false;
       if (btn) { btn.classList.remove('is-busy'); btn.textContent = 'Send Message'; }
       form.reset();
-      toast('Demo only — no message was actually sent.');
+      toast('Demo only. No message was actually sent.');
     }, 700);
   });
 
