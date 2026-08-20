@@ -216,10 +216,14 @@ address{font-style:normal}
 }
 .hero__cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
 
-.hero__stats{
-  display:flex;flex-wrap:wrap;gap:clamp(24px,5vw,56px);
+/* Cue + stats share one row. The cue is pulled into the left margin by exactly
+   its own width plus the gap, so the stats still line up with the copy above. */
+.hero__foot{
+  --cue-w:26px; --cue-gap:42px;
+  display:flex;align-items:center;
   margin-top:52px;padding-top:28px;border-top:1px solid var(--line);
 }
+.hero__stats{display:flex;flex-wrap:wrap;gap:clamp(24px,5vw,56px)}
 .stat dt{
   font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:.16em;
   text-transform:uppercase;color:var(--dim);margin-bottom:6px;
@@ -230,17 +234,27 @@ address{font-style:normal}
 }
 
 .hero__cue{
-  position:absolute;bottom:22px;
-  left:max(var(--gut), calc(50% - (var(--hero-w) / 2) + var(--gut)));
-  width:24px;height:38px;border:2px solid var(--line-2);border-radius:13px;
-  display:grid;place-items:start center;padding-top:7px;
-  transition:border-color .25s var(--ease);
+  flex:none;
+  width:var(--cue-w);height:41px;
+  margin-right:var(--cue-gap);
+  margin-left:calc(-1 * (var(--cue-w) + var(--cue-gap)));
+  border:2px solid rgba(255,255,255,.28);border-radius:14px;
+  display:grid;place-items:start center;padding-top:8px;
+  transition:border-color .25s var(--ease), transform .25s var(--ease);
 }
-.hero__cue:hover{border-color:#fff}
-.hero__cue span{width:3px;height:8px;border-radius:2px;background:#fff;
-  animation:cue 1.7s var(--ease) infinite}
-@keyframes cue{0%{opacity:0;transform:translateY(0)}35%{opacity:1}
-  100%{opacity:0;transform:translateY(14px)}}
+.hero__cue:hover{border-color:#fff;transform:translateY(2px)}
+
+/* No margin to hang in below this width, so retire the cue rather than
+   letting it shove the stats out of alignment. */
+@media (max-width:960px){ .hero__cue{display:none} }
+.hero__cue span{width:3px;height:9px;border-radius:2px;background:#fff;
+  animation:cue 2s var(--ease) infinite}
+@keyframes cue{
+  0%{opacity:0;transform:translateY(0)}
+  25%{opacity:1}
+  70%{opacity:1;transform:translateY(13px)}
+  100%{opacity:0;transform:translateY(15px)}
+}
 
 /* ---------- 7. Ticker ---------- */
 .ticker{background:var(--red);overflow:hidden;padding-block:13px;
@@ -548,7 +562,6 @@ address{font-style:normal}
   .cats{grid-template-columns:1fr}
   .stores{grid-template-columns:1fr}
   .ftr__inner{grid-template-columns:1fr 1fr}
-  .hero__cue{display:none}
   .hero__stats{gap:22px}
   .stat{min-width:calc(50% - 11px)}
   .gate__actions{flex-direction:column}
@@ -561,7 +574,7 @@ address{font-style:normal}
   .hero__title{font-size:clamp(38px,5.6vw,66px)}
   .hero__lede{font-size:17px}
   .hero__cta{margin-top:26px}
-  .hero__stats{margin-top:32px;padding-top:20px}
+  .hero__foot{margin-top:32px;padding-top:20px}
 }
 
 /* ---------- 15. Motion preferences ---------- */
