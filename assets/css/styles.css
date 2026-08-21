@@ -247,13 +247,20 @@ address{font-style:normal}
 /* No margin to hang in below this width, so retire the cue rather than
    letting it shove the stats out of alignment. */
 @media (max-width:960px){ .hero__cue{display:none} }
-.hero__cue span{width:3px;height:9px;border-radius:2px;background:#fff;
-  animation:cue 2s var(--ease) infinite}
+.hero__cue span{
+  width:3px;height:9px;border-radius:2px;background:#fff;
+  animation:cue 1.9s cubic-bezier(.65,0,.35,1) infinite;
+}
+/* The dot must only ever be SEEN travelling downward. Every keyframe that moves
+   it back up is pinned to opacity 0, so the reset is invisible; the visible
+   phase is one continuous downward run. Easing here is per-segment, so keep the
+   travel on a single long segment rather than letting an ease-out curve bunch
+   the motion into the tails. */
 @keyframes cue{
-  0%{opacity:0;transform:translateY(0)}
-  25%{opacity:1}
-  70%{opacity:1;transform:translateY(13px)}
-  100%{opacity:0;transform:translateY(15px)}
+  0%,   8%  {opacity:0; transform:translateY(0)}
+  20%       {opacity:1; transform:translateY(2px)}
+  60%       {opacity:1; transform:translateY(13px)}
+  76%, 100% {opacity:0; transform:translateY(16px)}
 }
 
 /* ---------- 7. Ticker ---------- */
@@ -586,4 +593,6 @@ address{font-style:normal}
   }
   .js .reveal{opacity:1;transform:none}
   .ticker__track{animation:none}
+  /* the cue's animation ends on an invisible frame, so pin the dot visible */
+  .hero__cue span{opacity:1;transform:translateY(6px)}
 }
