@@ -251,16 +251,15 @@ address{font-style:normal}
   width:3px;height:9px;border-radius:2px;background:#fff;
   animation:cue 1.9s cubic-bezier(.65,0,.35,1) infinite;
 }
-/* The dot must only ever be SEEN travelling downward. Every keyframe that moves
-   it back up is pinned to opacity 0, so the reset is invisible; the visible
-   phase is one continuous downward run. Easing here is per-segment, so keep the
-   travel on a single long segment rather than letting an ease-out curve bunch
-   the motion into the tails. */
+/* Dot runs bottom to top. Every keyframe that carries it back down is pinned to
+   opacity 0, so the reset is never seen and the visible phase is one continuous
+   upward run. Easing is per-segment in CSS, so the travel stays on a single long
+   segment rather than letting the curve bunch the motion into the tails. */
 @keyframes cue{
-  0%,   8%  {opacity:0; transform:translateY(0)}
-  20%       {opacity:1; transform:translateY(2px)}
-  60%       {opacity:1; transform:translateY(13px)}
-  76%, 100% {opacity:0; transform:translateY(16px)}
+  0%,   8%  {opacity:0; transform:translateY(16px)}
+  20%       {opacity:1; transform:translateY(14px)}
+  60%       {opacity:1; transform:translateY(3px)}
+  76%, 100% {opacity:0; transform:translateY(0)}
 }
 
 /* ---------- 7. Ticker ---------- */
