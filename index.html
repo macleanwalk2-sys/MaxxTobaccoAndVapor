@@ -75,6 +75,15 @@
   </div>
   <div class="hero__scrim" aria-hidden="true"></div>
 
+  <!--
+    HERO VAPOR
+    A slow exhale drifting across the hero. Sits above the scrim so it is not
+    dimmed by it, and below .hero__inner so it never crosses the headline.
+    Tuning lives in the VAPOR block in main.js. Degrades to nothing if canvas
+    is unavailable or the visitor prefers reduced motion.
+  -->
+  <canvas class="hero__vapor" id="heroVapor" aria-hidden="true"></canvas>
+
   <div class="hero__inner wrap">
     <p class="eyebrow reveal">
       <span class="eyebrow__rule" aria-hidden="true"></span>

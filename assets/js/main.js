@@ -206,6 +206,143 @@
     }, 700);
   });
 
+  /* ---------- Hero vapor -------------------------------------
+     A slow exhale that drifts across the hero every few seconds.
+     Everything worth tweaking is in VAPOR: raise `every` for rarer
+     puffs, `alpha` for a heavier cloud, `originX/Y` to move the
+     source. Sits behind the headline and never intercepts clicks.
+
+     It pauses when the hero scrolls out of view or the tab is
+     hidden, and never starts at all under reduced motion.
+  ----------------------------------------------------------- */
+  var VAPOR = {
+    every:   9,            // seconds between puffs
+    count:   20,           // particles per puff, scaled up on wide heroes
+    life:    [4.5, 7.5],   // seconds a particle lasts
+    speed:   [35, 90],     // px/sec at birth
+    originX: 0.70,         // source sits right of the copy, in open space
+    originY: 0.66,         // and below it, so it never crosses the headline
+    spread:  [28, 24],     // how far apart particles are born, x and y
+    radius:  [18, 38],     // birth radius; wider means no hot core
+    alpha:   0.20          // peak opacity per particle
+  };
+
+  (function heroVapor() {
+    var canvas = $('#heroVapor');
+    if (!canvas || !canvas.getContext) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var ctx = canvas.getContext('2d');
+    var W = 0, H = 0, parts = [], timer = 1.4, running = false, raf = 0, last = 0;
+    var visible = true;
+
+    // One soft sprite, drawn scaled per particle. Building a gradient per
+    // particle per frame is what makes naive smoke effects stutter.
+    var sprite = (function () {
+      var n = 128, c = document.createElement('canvas');
+      c.width = c.height = n;
+      var g = c.getContext('2d');
+      var grd = g.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2);
+      grd.addColorStop(0, 'rgba(214,230,255,0.30)');
+      grd.addColorStop(0.4, 'rgba(214,230,255,0.10)');
+      grd.addColorStop(1, 'rgba(214,230,255,0)');
+      g.fillStyle = grd;
+      g.fillRect(0, 0, n, n);
+      return c;
+    })();
+
+    function rnd(a, b) { return a + Math.random() * (b - a); }
+
+    function fit() {
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var r = canvas.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      W = r.width; H = r.height;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function puff() {
+      var scale = Math.max(1, W / 560);   // a wide hero needs more particles
+      var n = Math.round(VAPOR.count * scale);
+      for (var i = 0; i < n; i++) {
+        var ang = rnd(-0.30, 0.30) - 0.10;
+        var sp = rnd(VAPOR.speed[0], VAPOR.speed[1]) * Math.sqrt(scale);
+        parts.push({
+          x: W * VAPOR.originX + rnd(-VAPOR.spread[0], VAPOR.spread[0]),
+          y: H * VAPOR.originY + rnd(-VAPOR.spread[1], VAPOR.spread[1]),
+          vx: Math.cos(ang) * sp,
+          vy: Math.sin(ang) * sp,
+          age: 0,
+          life: rnd(VAPOR.life[0], VAPOR.life[1]),
+          r: rnd(VAPOR.radius[0], VAPOR.radius[1]),
+          grow: rnd(14, 26)
+        });
+      }
+    }
+
+    function frame(now) {
+      raf = requestAnimationFrame(frame);
+      var dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+
+      timer -= dt;
+      if (timer <= 0) { puff(); timer = VAPOR.every; }
+
+      for (var i = parts.length - 1; i >= 0; i--) {
+        var p = parts[i];
+        p.age += dt;
+        if (p.age >= p.life) { parts.splice(i, 1); continue; }
+        p.vy -= 9 * dt;                       // gentle lift
+        var drag = Math.pow(0.55, dt);
+        p.vx *= drag; p.vy *= drag;
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.r += p.grow * dt;
+      }
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+      for (var j = 0; j < parts.length; j++) {
+        var q = parts[j], u = q.age / q.life;
+        var a = u < 0.18 ? u / 0.18 : 1 - (u - 0.18) / 0.82;
+        if (a <= 0) continue;
+        ctx.globalAlpha = a * VAPOR.alpha;
+        ctx.drawImage(sprite, q.x - q.r, q.y - q.r, q.r * 2, q.r * 2);
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+    function stop() {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
+    fit();
+    window.addEventListener('resize', fit, { passive: true });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else if (visible) start();
+    });
+
+    var heroEl = $('.hero');
+    if ('IntersectionObserver' in window && heroEl) {
+      new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+        if (visible && !document.hidden) start(); else stop();
+      }, { rootMargin: '60px' }).observe(heroEl);
+    } else {
+      start();
+    }
+  })();
+
   /* ---------- Footer year ---------- */
   var yearEl = $('#year');
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());

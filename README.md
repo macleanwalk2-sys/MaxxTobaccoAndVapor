@@ -71,6 +71,33 @@ Not connected to anything. The `<form>` carries `data-demo`, which short-circuit
 submission and fakes a success state. To go live, set an `action` (Formspree,
 Netlify Forms, or your own endpoint) and remove `data-demo`.
 
+### Hero vapor
+
+A slow exhale drifts across the hero every nine seconds. It is drawn on a canvas
+(`#heroVapor`) layered above the scrim and below the copy, so it never crosses the
+headline. No image or video asset is involved.
+
+Everything worth tuning sits in the `VAPOR` block at the top of the hero-vapor
+section in `main.js`:
+
+| key | what it does |
+| --- | --- |
+| `every` | seconds between puffs; raise it for rarer |
+| `count` | particles per puff, scaled up automatically on wide heroes |
+| `life` | how long each particle lasts, in seconds |
+| `speed` | birth velocity in px/sec |
+| `originX` / `originY` | where the puff starts, as a fraction of the hero |
+| `spread` | how far apart particles are born; wider avoids a hot core |
+| `radius` | birth size |
+| `alpha` | peak opacity; this is the main brightness dial |
+
+The origin sits right of and below the copy on purpose. Moving it toward the centre
+puts the cloud behind the headline and costs legibility.
+
+It pauses when the hero scrolls out of view and when the tab is hidden, and does not
+run at all under `prefers-reduced-motion`. If canvas is unavailable the hero simply
+renders without it.
+
 ### 🔴 Background video
 The hero is built to take one. In `index.html` uncomment the `<video class="hero__video">`
 block near the top of `<section class="hero">` and add your files under `assets/video/`.
